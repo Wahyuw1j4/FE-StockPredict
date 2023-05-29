@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
+    "apexcharts": "^3.40.0",
     "vue": "^3.3.2",
-    "vue-router": "^4.2.1"
+    "vue-router": "^4.2.1",
+    "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
