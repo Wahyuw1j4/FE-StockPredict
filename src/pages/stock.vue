@@ -1,34 +1,60 @@
 <template>
   <navbar />
   <div class="p-3 lg:px-[12rem]">
-    <p class="font-bold text-3xl">BBRI</p>
-    <p class="font-bold text-2sxl">30-3-2023</p>
-    <div class="lg:flex">
-      <apexchart
-        class="lg:w-[500px] border-2 border-gray-500"
-        type="area"
-        height="400"
-        widht="600"
-        :options="chartOptions"
-        :series="series"
-      ></apexchart>
-      <div
-        class="mt-3 grid grid-cols-2 place-items-center h-20 lg:place-items-start lg:mx-4 text-center lg:text-left lg:gap-4"
-      >
-        <span class="align-center lg:align-left">
-          <p class="text-slate-400">Harga closing kemarin</p>
-          <p class="font-bold">Rp. 4000</p>
-        </span>
-        <span>
-          <p class="text-slate-400">Prediksi closing kemarin</p>
-          <p class="font-bold">Rp. 4000</p>
-        </span>
-        <span class="col-start-1 col-end-6 text-center">
-          <p class="text-slate-400">Harga Prediksi closing Hari Berikutnya</p>
-          <p class="font-bold">Rp. 4000</p>
-        </span>
+    <p class="font-bold text-3xl">{{ ticker.split(".")[0].toUpperCase() }}</p>
+    <label
+      for="countries"
+      class="block my-4 text-sm font-medium text-gray-900 dark:text-white"
+      >Pilih Hari</label
+    >
+    <select
+      id="countries"
+      class="bg-gray-50 w-[15rem] mb-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" v-model="selectedDate" @change="changedDate"
+    >
+    <option v-for="(date, index) in listDates" >{{ date }}</option>
+      
+    </select>
+    <div class="">
+      <div class="flex justify-center">
+        <apexchart
+          class="lg:w-[700px] w-full border-2 border-gray-500"
+          type="area"
+          height="500"
+          widht="700"
+          :options="chartOptions"
+          :series="series"
+        ></apexchart>
+      </div>
+
+      <div class="flex gap-4 mt-6 justify-center">
+        <div v-if="prevPredict != null" class="flex gap-4 border-2 p-3">
+          <span>
+            <p class="text-slate-500">Prediksi kemarin</p>
+            <p class="font-bold">Rp. {{ Math.floor(prevPredict.predict) }}</p>
+          </span>
+          <span>
+            <p class="text-slate-5s00">RMSE</p>
+            <p class="font-bold">
+              {{ parseFloat(prevPredict.rmse.toFixed(2)) }}
+            </p>
+          </span>
+        </div>
+        <div class="flex gap-4 border-2 p-3">
+          <span class="">
+            <p class="text-slate-500">Prediksi hari berikutnya</p>
+            <p class="font-bold">Rp. {{ Math.floor(nextPredict.predict) }}</p>
+          </span>
+          <span class="">
+            <p class="text-slate-5s00">RMSE</p>
+            <p class="font-bold">
+              {{ nextPredict.rmse.toFixed(2) }}
+            </p>
+          </span>
+        </div>
       </div>
     </div>
+  </div>
+  <div class="mt-8 lg:px-[12rem]">
     <EasyDataTable :headers="headers" :items="items" />
   </div>
 </template>
@@ -47,6 +73,7 @@ export default {
   },
   data() {
     return {
+      url_api: "w",
       ts2: 1484418600000,
       dates: [],
       series: [],
@@ -71,7 +98,7 @@ export default {
           size: 0,
         },
         title: {
-          text: "Stock Price Movement",
+          text: "Pergerakan Harga Saham",
           align: "left",
         },
         fill: {
@@ -85,76 +112,53 @@ export default {
           },
         },
         yaxis: {
-          labels: {
-            formatter: function (val) {
-              return (val / 1000000).toFixed(0);
-            },
-          },
           title: {
             text: "Price",
+          },
+          labels: {
+            formatter: function (value) {
+              // Menggunakan floor.js untuk membulatkan nilai ke bawah
+              return value.toFixed();
+            },
           },
         },
         xaxis: {
           type: "datetime",
+          
         },
         tooltip: {
           shared: false,
-          y: {
-            formatter: function (val) {
-              return (val / 1000000).toFixed(0);
-            },
-          },
         },
       },
       headers: [
-        { text: "PLAYER", value: "player" },
-        { text: "TEAM", value: "team" },
-        { text: "NUMBER", value: "number" },
-        { text: "POSITION", value: "position" },
-        { text: "HEIGHT", value: "indicator.height" },
-        { text: "WEIGHT (lbs)", value: "indicator.weight", sortable: true },
-        { text: "LAST ATTENDED", value: "lastAttended", width: 200 },
-        { text: "COUNTRY", value: "country" },
+        { text: "Date", value: "date" },
+        { text: "Closing", value: "closing" },
+        { text: "Prediksi", value: "predict" },
       ],
 
-      items: [
-        {
-          player: "Stephen Curry",
-          team: "GSW",
-          number: 30,
-          position: "G",
-          indicator: { height: "6-2", weight: 185 },
-          lastAttended: "Davidson",
-          country: "USA",
-        },
-        {
-          player: "Lebron James",
-          team: "LAL",
-          number: 6,
-          position: "F",
-          indicator: { height: "6-9", weight: 250 },
-          lastAttended: "St. Vincent-St. Mary HS (OH)",
-          country: "USA",
-        },
-        {
-          player: "Kevin Durant",
-          team: "BKN",
-          number: 7,
-          position: "F",
-          indicator: { height: "6-10", weight: 240 },
-          lastAttended: "Texas-Austin",
-          country: "USA",
-        },
-        {
-          player: "Giannis Antetokounmpo",
-          team: "MIL",
-          number: 34,
-          position: "F",
-          indicator: { height: "6-11", weight: 242 },
-          lastAttended: "Filathlitikos",
-          country: "Greece",
-        },
-      ],
+      items: [],
+
+      listDates: [],
+
+      nextPredict: {
+        date: "",
+        predict: 0,
+        rmse: 0,
+        updateAt: "",
+      },
+
+      prevPredict: {
+        date: "",
+        predict: 0,
+        rmse: 0,
+        updateAt: "",
+      },
+
+      dataGraphClose: [],
+      dataGraphPredict: [],
+
+      selectedDate: "",
+      ticker: this.$route.query.ticker,
     };
   },
 
@@ -164,19 +168,155 @@ export default {
         this.ts2 = this.ts2 + 86400000;
         this.dates.push([this.ts2, dataSeries[1][i].value]);
       }
-      console.log(this.dates);
 
       this.series = [
         {
-          name: "XYZ MOTORS",
-          data: this.dates,
+          name: "Close",
+          data: this.dataGraphClose,
+        },
+        {
+          name: "Predict",
+          data: this.dataGraphPredict,
         },
       ];
     },
+
+    changedDate() {
+      this.getStockBySelectedDate();
+      // this.getGraph();
+      this.getGraphBySelectedDate();
+    },
+
+    getStock() {
+      let ticker = this.ticker;
+     
+      this.$http
+        .get(`${this.url_api}stock?ticker=${ticker}`)
+        .then((response) => {
+          response.data.data_predict.forEach((element) => {
+            this.listDates.push(element.date);
+            this.listDates = this.listDates.reverse();
+            this.selectedDate = this.listDates[0];
+          });
+          console.log(this.selectedDate, "selected date");
+          console.log(this.listDates[0]);
+          if (this.selectedDate == this.listDates[0]) {
+            this.nextPredict = response.data.data_predict.slice(-1)[0];
+            this.prevPredict = response.data.data_predict.slice(-2)[0];
+          } else {
+            response.data.data_predict.forEach((element) => {
+              if (element.date == this.selectedDate) {
+                this.nextPredict = element;
+                if (response.data.data_predict.indexOf(element) == 0) {
+                  this.prevPredict = null;
+                } else{
+                  this.prevPredict =
+                    response.data.data_predict[
+                      response.data.data_predict.indexOf(element) - 1
+                    ];
+                }
+              }
+            });
+          }
+        });
+    },
+
+    getStockBySelectedDate(){
+      this.nextPredict = {
+        date: "",
+        predict: 0,
+        rmse: 0,
+        updateAt: "",
+      };
+      this.prefPredict = {
+        date: "",
+        predict: 0,
+        rmse: 0,
+        updateAt: "",
+      };
+      let ticker = this.ticker;
+      let date = this.selectedDate;
+      this.$http
+        .get(`${this.url_api}stock?ticker=${ticker}&date=${date}`)
+        .then((response) => {
+          if (this.selectedDate == this.listDates[0]) {
+            this.nextPredict = response.data.data_predict.slice(-1)[0];
+            this.prevPredict = response.data.data_predict.slice(-2)[0];
+          } else {
+            response.data.data_predict.forEach((element) => {
+              if (element.date == this.selectedDate) {
+                this.nextPredict = element;
+                if (response.data.data_predict.indexOf(element) == 0) {
+                  this.prevPredict = null;
+                } else{
+                  this.prevPredict =
+                    response.data.data_predict[
+                      response.data.data_predict.indexOf(element) - 1
+                    ];
+                }
+              }
+            });
+          }
+        });
+    },
+    
+
+    getGraph() {
+      this.dataGraphClose= []
+      this.dataGraphPredict= []
+      let ticker = this.ticker;
+
+      this.$http
+        .get(`${this.url_api}datastock?ticker=${ticker}`)
+        .then((response) => {
+          response.data.forEach((element) => {
+            this.dataGraphClose.push({ x: element.Date, y: element.Close });
+            this.dataGraphPredict.push({ x: element.Date, y: element.predict });
+            this.items.push({
+              date: element.Date,
+              closing: element.Close,
+              predict: element.predict,
+            });
+          });
+        });
+    },
+
+    getGraphBySelectedDate(){
+      this.dataGraphClose= []
+      this.dataGraphPredict= []
+      this.items = []
+      let ticker = this.ticker;
+      let date = this.selectedDate;
+      console.log(ticker, date, "date selected")
+      this.$http
+        .get(`${this.url_api}datastock?ticker=${ticker}&date=${date}`)
+        .then((response) => {
+          response.data.forEach((element) => {
+            this.dataGraphClose.push({ x: element.Date, y: element.Close });
+            this.dataGraphPredict.push({ x: element.Date, y: element.predict });
+            this.items.push({
+              date: element.Date,
+              closing: element.Close,
+              predict: element.predict,
+            });
+          });
+        }).then(() => {
+          this.updateSeries();
+          this.items = this.items.reverse();
+        });
+    }
   },
+  created() {
+    
+    
+  },
+
   mounted() {
+    this.getStock();
+    this.getGraph();
     setTimeout(() => {
       this.updateSeries();
+      this.items = this.items.reverse();
     }, 2000);
   },
 };
