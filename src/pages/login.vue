@@ -74,7 +74,6 @@
 <script>
 import { ref, getCurrentInstance } from "vue";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
 import { useStore } from "vuex";
 
 export default {
@@ -94,9 +93,7 @@ export default {
       const token = response.data.token;
       console.log(login);
       localStorage.setItem("token", token);
-      const decoded = jwt_decode(token);
-      store.commit("setRole", decoded.role);
-      store.commit("setUsername", login.value.username);
+      store.commit("setUser", token);
       proxy.$router.push("/");
     };
 

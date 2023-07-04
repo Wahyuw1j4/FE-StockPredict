@@ -171,7 +171,7 @@ export default {
       },
       {
         text: "Nama Saham",
-        value: "name",
+        value: "name_stock",
       },
       {
         text: "Ticker Saham",
@@ -179,7 +179,7 @@ export default {
       },
       {
         text: "Alasan",
-        value: "alasan",
+        value: "reason",
       },
     ]);
 
@@ -196,7 +196,7 @@ export default {
       },
       {
         text: "Nama Saham Perusahaan",
-        value: "name",
+        value: "name_stock",
       },
       { text: "Operation", value: "operation" },
     ]);

@@ -147,7 +147,7 @@ export default {
   },
   setup(_, context) {
     let stocks = ref(null);
-    const apiUrl = "http://192.168.8.110:5000/";
+    const apiUrl = "http://127.0.0.1:5000/";
     const information = reactive({
       title: "RMSE",
       description:
@@ -168,7 +168,7 @@ export default {
       console.log("getStock");
       let response = await axios.get(apiUrl + "stock");
       stocks.value = response.data.data;
-      console.log(stocks.value);
+      console.log(stocks.value, "ini stocks");
     };
 
     const relativeTimeFormat = (unixTime) => {

@@ -73,7 +73,7 @@ export default {
   },
   data() {
     return {
-      url_api: "w",
+      url_api: "http://127.0.0.1:5000/",
       ts2: 1484418600000,
       dates: [],
       series: [],

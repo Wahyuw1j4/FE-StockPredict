@@ -14,11 +14,20 @@ const routes = [
         path: '/',
         name: 'Home',
         component: Home,
+        beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+            const result = store.commit("setUser", token);
+            console.log(result, 'result');
+        }
     },
     {
         path: '/stock',
         name: 'Stock',
         component: Stock,
+        beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+            store.commit("setUser", token);
+        }
     },
     {
         path: '/login',
@@ -34,12 +43,18 @@ const routes = [
         path: '/request',
         name: 'Request',
         component: () => import('./pages/requestStock.vue'),
+        beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+            store.commit("setUser", token);
+        }
     },
     {
         path: '/listrequest',
         name: 'ListRequest',
         component: () => import('./pages/listRequest.vue'),
         beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+            store.commit("setUser", token);
             if (store.state.role == "Admin"){
                 return true;
             }else{
@@ -51,11 +66,20 @@ const routes = [
         path: '/tentang',
         name: 'Tentang',
         component: () => import('./pages/tentang.vue'),
+        beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+            store.commit("setUser", token);
+        }
     },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import('./pages/errorPage.vue'),
+        beforeEnter: (to, from) => {
+            const token = localStorage.getItem("token");
+        
+            store.commit("setUser", token);
+        }
     }
 
 ]
@@ -68,6 +92,10 @@ router.beforeEach((to, from, next) => {
     const publicPages = ['/login', '/register'];
     const authRequired = !publicPages.includes(to.path);
     const loggedIn = localStorage.getItem('token');
+
+
+
+    
     if (authRequired && !loggedIn) {
         return next('/login');
     }else if (to.path == '/login' && loggedIn){
