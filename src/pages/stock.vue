@@ -73,7 +73,7 @@ export default {
   },
   data() {
     return {
-      url_api: "http://127.0.0.1:5000/",
+      url_api: import.meta.env.VITE_BACKEND_FLASK_HOST,
       ts2: 1484418600000,
       dates: [],
       series: [],
@@ -191,7 +191,7 @@ export default {
       let ticker = this.ticker;
      
       this.$http
-        .get(`${this.url_api}stock?ticker=${ticker}`)
+        .get(`${this.url_api}/stock?ticker=${ticker}`)
         .then((response) => {
           response.data.data_predict.forEach((element) => {
             this.listDates.push(element.date);
@@ -237,7 +237,7 @@ export default {
       let ticker = this.ticker;
       let date = this.selectedDate;
       this.$http
-        .get(`${this.url_api}stock?ticker=${ticker}&date=${date}`)
+        .get(`${this.url_api}/stock?ticker=${ticker}&date=${date}`)
         .then((response) => {
           if (this.selectedDate == this.listDates[0]) {
             this.nextPredict = response.data.data_predict.slice(-1)[0];
@@ -267,7 +267,7 @@ export default {
       let ticker = this.ticker;
 
       this.$http
-        .get(`${this.url_api}datastock?ticker=${ticker}`)
+        .get(`${this.url_api}/datastock?ticker=${ticker}`)
         .then((response) => {
           response.data.forEach((element) => {
             this.dataGraphClose.push({ x: element.Date, y: element.Close });
@@ -289,7 +289,7 @@ export default {
       let date = this.selectedDate;
       console.log(ticker, date, "date selected")
       this.$http
-        .get(`${this.url_api}datastock?ticker=${ticker}&date=${date}`)
+        .get(`${this.url_api}/datastock?ticker=${ticker}&date=${date}`)
         .then((response) => {
           response.data.forEach((element) => {
             this.dataGraphClose.push({ x: element.Date, y: element.Close });

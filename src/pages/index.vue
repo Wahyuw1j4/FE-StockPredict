@@ -147,7 +147,8 @@ export default {
   },
   setup(_, context) {
     let stocks = ref(null);
-    const apiUrl = "http://127.0.0.1:5000/";
+    const apiUrl = ref(import.meta.env.VITE_BACKEND_FLASK_HOST);
+    // const apiUrl = "http://127.0.0.1:5000/";
     const information = reactive({
       title: "RMSE",
       description:
@@ -166,7 +167,7 @@ export default {
 
     const getStock = async () => {
       console.log("getStock");
-      let response = await axios.get(apiUrl + "stock");
+      let response = await axios.get(apiUrl.value + "/stock");
       stocks.value = response.data.data;
       console.log(stocks.value, "ini stocks");
     };

@@ -80,9 +80,11 @@ export default {
       reason: "",
     });
 
+    const webHost = ref(import.meta.env.VITE_BACKEND_WEB_HOST)
+
     const submitData = async () => {
       console.log(data);
-      const response = await axios.post("http://127.0.0.1:4140/request", data, {
+      const response = await axios.post(`${webHost.value}/request`, data, {
         headers: {
           "Content-Type": "application/json",
           token: localStorage.getItem("token") || "",

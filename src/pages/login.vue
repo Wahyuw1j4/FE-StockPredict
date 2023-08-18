@@ -12,11 +12,22 @@
           >
             Sign in to your account
           </h1>
-          <div v-if="succesRegister"
+          <div
+            v-if="succesRegister"
             class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
-            >
-            <span class="font-medium">Registrasi Success</span> {{ succesRegister }}
+          >
+            <span class="font-medium">Registrasi Success</span>
+            {{ succesRegister }}
+          </div>
+
+          <div
+            v-if="error"
+            class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
+            <span class="font-medium">Error </span>
+            {{ error }}
           </div>
           <form class="space-y-4 md:space-y-6" @submit.prevent="loginSubmit">
             <div>
@@ -84,22 +95,37 @@ export default {
       password: "",
     });
     const { proxy } = getCurrentInstance();
+    const error = ref("");
+    const webHost = ref(import.meta.env.VITE_BACKEND_WEB_HOST)
 
     const loginSubmit = async () => {
-      const response = await axios.post(
-        "http://127.0.0.1:4140/login",
-        login.value
-      );
-      const token = response.data.token;
-      console.log(login);
-      localStorage.setItem("token", token);
-      store.commit("setUser", token);
-      proxy.$router.push("/");
+      try {
+        console.log('webHost.value', webHost.value);
+        const response = await axios.post(
+          `${webHost.value}/login`,
+          login.value
+        );
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+        store.commit("setUser", token);
+        proxy.$router.push("/");
+      } catch (err) {
+        // Tangkap error jika username atau password tidak sesuai
+        console.log(err);
+        if (err.response && err.response.status === 401) {
+          error.value = "Username or password is incorrect.";
+        } else {
+          error.value =
+            "An error occurred during login. Please try again later.";
+        }
+      }
     };
 
     const succesRegister = ref(proxy.$route.query.message);
+
     return {
       login,
+      error,
       loginSubmit,
       succesRegister,
     };
