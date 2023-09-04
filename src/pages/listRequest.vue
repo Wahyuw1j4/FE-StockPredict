@@ -65,8 +65,10 @@
                         id="ticker"
                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                         placeholder=" "
+                        v-model="addStockForm.ticker"
                         required
                       />
+                    
                       <label
                         for="ticker"
                         class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
@@ -80,6 +82,7 @@
                         id="ticker"
                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                         placeholder=" "
+                        v-model="addStockForm.name_stock"
                         required
                       />
                       <label
@@ -92,7 +95,7 @@
                       <button
                         type="button"
                         class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        @click="closeModal"
+                        @click="addStock"
                       >
                         Tambahkan
                       </button>
@@ -120,11 +123,11 @@
             class="cursor-pointer hover:text-slate-300"
             @click="deleteItem(item)"
           />
-          <img
+          <!-- <img
             src="../assets/svg/edit.svg "
             class="cursor-pointer"
             @click="editItem(item)"
-          />
+          /> -->
         </div>
       </template>
     </easyTable>
@@ -164,6 +167,33 @@ export default {
       isOpen.value = true;
     }
 
+    const webHost = ref(import.meta.env.VITE_BACKEND_WEB_HOST)
+
+    const addStockForm = reactive({
+      ticker: "",
+      name_stock: "",
+    });
+
+    const addStock = async () =>{
+      const response = await axios.post(`${webHost.value}/stock`, addStockForm, {
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
+        },
+      });
+      if (response.status == 200) {
+        toast.success("Data request Stock Terkirim", {
+          autoClose: 3000,
+        });
+        isOpen.value = false;
+        ganerateItemsAdd();
+      } else{
+        toast.error("Ada Kesalahan, Hubungi pemilik website", {
+          autoClose: 3000,
+        });
+      }
+    }
+
     const headersReq = reactive([
       {
         text: "ID",
@@ -182,6 +212,7 @@ export default {
         value: "reason",
       },
     ]);
+
 
     const itemsReq = reactive([]);
 
@@ -203,35 +234,42 @@ export default {
 
     const itemsAdd = reactive([]);
 
-    const deleteItem = (item) => {
-      const response = axios.delete(`http://localhost:4140/stock/${item.id}`, {
+    const deleteItem = async (item) => {
+      // console.log(item.id)
+      const response = await axios.delete(`${webHost.value}/stock/${item.id}`, {
         headers: {
-          token: `Bearer ${localStorage.getItem("token")}`,
+          token: localStorage.getItem("token") || "",
         },
       });
-      if (response.status === 200){
-        itemsAdd.splice(itemsAdd.indexOf(item), 1);
+      if (response.status == 200){
+        toast.success("Data request Stock Terhapus", {
+          autoClose: 3000,
+        });
+        location.reload();
       }else{
         toast.error('ada kesalahan');
       }
     };
 
-    const editItem = (item) => {
-      const response = axios.put(`http://localhost:4140/stock/${item.id}`, {
-        headers: {
-          token: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    // const editItem = async (item) => {
+    //   const response = await axios.put(`${webHost.value}/stock/${item.id}`, {
+    //     headers: {
+    //       token: `Bearer ${localStorage.getItem("token")}`,
+    //     },
+    //   });
       
-      if (response.status === 200){
-        itemsAdd.splice(itemsAdd.indexOf(item), 1);
-      }else{
-        toast.error('ada kesalahan');
-      }
-    };
+    //   if (response.status == 200){
+    //     toast.success("Data request Stock Terupdate", {
+    //       autoClose: 3000,
+    //     });
+        
+    //   }else{
+    //     toast.error('ada kesalahan');
+    //   }
+    // };
 
     const ganerateItemsReq = async () => {
-      const response = await axios.get("http://localhost:4140/request", {
+      const response = await axios.get(`${webHost.value}/request`, {
         headers: {
           token: `${localStorage.getItem("token")}`,
         },
@@ -241,7 +279,7 @@ export default {
     }
 
     const ganerateItemsAdd = async () => {
-      const response = await axios.get("http://localhost:4140/stock", {
+      const response = await axios.get(`${webHost.value}/stock`, {
         headers: {
           token: `${localStorage.getItem("token")}`,
         },
@@ -259,12 +297,15 @@ export default {
 
     return {
       isOpen,
-      closeModal,
-      openModal,
       headersReq,
       itemsReq,
       headersAdd,
       itemsAdd,
+      addStockForm,
+      closeModal,
+      openModal,
+      deleteItem,
+      addStock
     };
   },
 };
